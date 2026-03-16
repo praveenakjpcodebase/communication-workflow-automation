@@ -1,62 +1,54 @@
-import schedule
-import time
-from servicenow_api import ServiceNOWAPI
-from watsonx_api import WatsonxAPI
-from outlook_api import OutlookAPI
+import os
+import json
+from typing import Dict
+from servicenow_client import ServiceNOWClient
+from outlook_client import OutlookClient
+from watsonx_client import WatsonxClient
 
-def create_ticket(ticket_data):
-    servicenow_api = ServiceNOWAPI("your_instance", "your_username", "your_password")
-    ticket = servicenow_api.create_ticket(ticket_data)
+def create_ticket(ticket_data: Dict) -> Dict:
+    """Create a new ticket in ServiceNOW"""
+    servicenow_client = ServiceNOWClient()
+    ticket = servicenow_client.create_ticket(ticket_data)
     return ticket
 
-def send_email(email_data):
-    outlook_api = OutlookAPI("your_client_id", "your_client_secret", "your_tenant_id")
-    email = outlook_api.send_email(email_data)
+def send_email(email_data: Dict) -> Dict:
+    """Send an email using Microsoft Outlook"""
+    outlook_client = OutlookClient()
+    email = outlook_client.send_email(email_data)
     return email
 
-def create_agent(agent_data):
-    watsonx_api = WatsonxAPI("your_api_key", "your_api_url")
-    agent = watsonx_api.create_agent(agent_data)
+def create_agent(agent_data: Dict) -> Dict:
+    """Create a new agent in Watsonx"""
+    watsonx_client = WatsonxClient()
+    agent = watsonx_client.create_agent(agent_data)
     return agent
 
-def update_agent(agent_id, agent_data):
-    watsonx_api = WatsonxAPI("your_api_key", "your_api_url")
-    agent = watsonx_api.update_agent(agent_id, agent_data)
-    return agent
+def communication_workflow_automation() -> None:
+    """Automate the communication workflow"""
+    try:
+        # Create a new ticket in ServiceNOW
+        ticket_data = {
+            "description": "Test ticket",
+            "priority": "High"
+        }
+        ticket = create_ticket(ticket_data)
 
-def communication_workflow_automation():
-    # Create a new ticket
-    ticket_data = {
-        "description": "Test ticket",
-        "priority": "High"
-    }
-    ticket = create_ticket(ticket_data)
+        # Send an email using Microsoft Outlook
+        email_data = {
+            "subject": "Test email",
+            "body": "Test email body",
+            "to": ["praveenakjpcodebase@example.com"]
+        }
+        email = send_email(email_data)
 
-    # Send an email to the stakeholders
-    email_data = {
-        "subject": "Test email",
-        "body": "Test email body",
-        "to": ["stakeholder1@example.com", "stakeholder2@example.com"]
-    }
-    email = send_email(email_data)
+        # Create a new agent in Watsonx
+        agent_data = {
+            "name": "Test agent",
+            "description": "Test agent description"
+        }
+        agent = create_agent(agent_data)
+    except Exception as e:
+        print(f"Error: {e}")
 
-    # Create a new agent
-    agent_data = {
-        "name": "Test agent",
-        "description": "Test agent description"
-    }
-    agent = create_agent(agent_data)
-
-    # Update the agent
-    agent_id = agent["id"]
-    agent_data = {
-        "name": "Updated test agent",
-        "description": "Updated test agent description"
-    }
-    agent = update_agent(agent_id, agent_data)
-
-schedule.every(1).minutes.do(communication_workflow_automation)  # Run the script every 1 minute
-
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+if __name__ == "__main__":
+    communication_workflow_automation()
